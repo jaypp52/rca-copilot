@@ -1,0 +1,50 @@
+{
+ "generated_at": "2026-11-24T11:31:51+00:00",
+ "kind": "claude-code-baseline",
+ "n_questions": 67,
+ "n_answerable": 60,
+ "n_unanswerable": 7,
+ "judge": "sonnet",
+ "verified_by_human": 0,
+ "runs": {
+  "haiku": {
+   "n_questions": 67,
+   "n_submitted": 67,
+   "n_answerable": 60,
+   "n_unanswerable": 7,
+   "faithfulness": 0.8963,
+   "faithfulness_micro": 0.8835,
+   "n_judged_answers": 60,
+   "n_claims": 206,
+   "citation_coverage": 0.9889,
+   "abstention_accuracy": 1.0,
+   "false_abstention_rate": 0.0
+  },
+  "sonnet": {
+   "n_questions": 67,
+   "n_submitted": 67,
+   "n_answerable": 60,
+   "n_unanswerable": 7,
+   "faithfulness": 0.9343,
+   "faithfulness_micro": 0.9231,
+   "n_judged_answers": 60,
+   "n_claims": 234,
+   "citation_coverage": 0.9806,
+   "abstention_accuracy": 1.0,
+   "false_abstention_rate": 0.0
+  },
+  "opus": {
+   "n_questions": 67,
+   "n_submitted": 67,
+   "n_answerable": 60,
+   "n_unanswerable": 7,
+   "faithfulness": 0.9347,
+   "faithfulness_micro": 0.9348,
+   "n_judged_answers": 60,
+   "n_claims": 276,
+   "citation_coverage": 0.9911,
+   "abstention_accuracy": 1.0,
+   "false_abstention_rate": 0.0
+  }
+ }
+}

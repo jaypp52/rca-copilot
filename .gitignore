@@ -14,3 +14,6 @@ data/skipped.jsonl
 # timestamped detailed eval runs (contain answer text); latest.json is committed
 eval/results/*.json
 !eval/results/latest.json
+# summary metrics only (no answer text) of the Claude Code baseline
+!eval/results/claude_code_baseline.json
+data/claude_code_runs/
