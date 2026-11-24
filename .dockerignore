@@ -1,0 +1,9 @@
+.venv
+.git
+.env
+data/raw
+data/bm25
+**/__pycache__
+.pytest_cache
+.ruff_cache
+eval/results

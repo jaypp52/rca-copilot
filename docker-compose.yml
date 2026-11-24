@@ -1,0 +1,40 @@
+services:
+  db:
+    image: pgvector/pgvector:pg16
+    environment:
+      POSTGRES_USER: rca
+      POSTGRES_PASSWORD: rca
+      POSTGRES_DB: rca
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - "${DB_PORT:-5432}:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U rca -d rca"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  api:
+    build:
+      context: .
+      args:
+        APP_UID: ${APP_UID:-1000}
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      DATABASE_URL: postgresql://rca:rca@db:5432/rca
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "${API_PORT:-8000}:8000"
+    volumes:
+      - appdata:/app/data            # raw HTML cache + BM25 index (never committed)
+      - ./eval:/app/eval             # eval results land in the repo
+      - ./data/urls.txt:/app/seed/urls.txt:ro
+
+volumes:
+  pgdata:
+  appdata:

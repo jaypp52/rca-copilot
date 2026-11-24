@@ -1,0 +1,16 @@
+.env
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.ruff_cache/
+*.egg-info/
+
+# fetched third-party postmortem text and derived indexes: never committed
+data/raw/
+data/bm25/
+data/skipped.jsonl
+
+# timestamped detailed eval runs (contain answer text); latest.json is committed
+eval/results/*.json
+!eval/results/latest.json

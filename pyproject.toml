@@ -1,0 +1,48 @@
+[project]
+name = "rca-copilot"
+version = "0.1.0"
+description = "Hybrid RAG (BM25 + dense + cross-encoder) over public incident postmortems, with inline citations from the Claude API"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "anthropic>=2.12",
+    "fastapi>=0.115",
+    "uvicorn[standard]>=0.30",
+    "pydantic>=2.7",
+    "pydantic-settings>=2.3",
+    "psycopg[binary,pool]>=3.2",
+    "pgvector>=0.3",
+    "numpy>=1.26",
+    # torch is installed separately from the CPU wheel index (see Dockerfile / CI)
+    "sentence-transformers>=3.0",
+    "bm25s>=0.2",
+    "trafilatura>=1.12",
+    "httpx>=0.27",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8", "ruff>=0.6"]
+
+[build-system]
+requires = ["setuptools>=69"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+include = ["app*", "eval*"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+extend-exclude = [".venv", "data"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP", "SIM"]
+ignore = ["E501"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
+markers = ["db: needs a running Postgres+pgvector (skipped otherwise)"]
+
+[tool.ruff.lint.flake8-bugbear]
+extend-immutable-calls = ["fastapi.Depends", "fastapi.Query", "fastapi.Header"]

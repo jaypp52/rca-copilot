@@ -1,0 +1,78 @@
+name: ci
+
+on:
+  push:
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  PIP_DISABLE_PIP_VERSION_CHECK: "1"
+
+jobs:
+  lint-test:
+    name: ruff + pytest
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - name: Install
+        run: |
+          pip install torch --index-url https://download.pytorch.org/whl/cpu
+          pip install -e ".[dev]"
+      - run: ruff check .
+      - run: pytest   # unit tests: no network, no API key
+
+  eval-gate:
+    name: retrieval eval + regression gate (fixture corpus)
+    needs: lint-test
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: pgvector/pgvector:pg16
+        env:
+          POSTGRES_USER: rca
+          POSTGRES_PASSWORD: rca
+          POSTGRES_DB: rca
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U rca -d rca"
+          --health-interval 5s --health-timeout 3s --health-retries 20
+    env:
+      DATABASE_URL: postgresql://rca:rca@localhost:5432/rca
+      DATA_DIR: ${{ runner.temp }}/rca-data
+      HF_HOME: ${{ github.workspace }}/.hf-cache
+      # The key is only exposed on pushes to main (never to forks / PRs).
+      ANTHROPIC_API_KEY: ${{ (github.event_name == 'push' && github.ref == 'refs/heads/main') && secrets.ANTHROPIC_API_KEY || '' }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - name: Cache Hugging Face models
+        uses: actions/cache@v4
+        with:
+          path: .hf-cache
+          key: hf-${{ hashFiles('app/config.py') }}
+      - name: Install
+        run: |
+          pip install torch --index-url https://download.pytorch.org/whl/cpu
+          pip install -e .
+      - name: Ingest the synthetic fixture corpus
+        run: python -m app.ingest.run --fixtures tests/fixtures/postmortems
+      - name: Eval (retrieval always; faithfulness on 10 questions when the key is available)
+        run: python -m eval.run --suite fixture --faith-limit 10 --out eval/results/latest.json
+      - name: Regression gate (Recall@5 -2pt, faithfulness -3pt vs eval/baseline.json)
+        run: python -m eval.gate eval/results/latest.json
+      - name: Upload results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: eval-results
+          path: eval/results/latest.json
