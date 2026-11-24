@@ -142,6 +142,12 @@ Config: `TOP_K_BM25=50`, `TOP_K_DENSE=50`, `FUSED_K=30`, `RERANK_K=6`, `RRF_K=60
   `eval/baseline.json`**. On pushes to `main`, where the `ANTHROPIC_API_KEY` secret is
   available, it also runs the answer eval on 10 questions and fails if faithfulness drops
   more than 3 points. `latest.json` is uploaded as a build artefact.
+- **The gate is proven to fire.** Branch `demo/broken-fusion` reversed the BM25 ranking before
+  RRF; the unit tests still passed, and the regression gate failed the build
+  ([CI run](https://github.com/jaypp52/rca-copilot/actions/runs/45374730531)) because hybrid
+  Recall@5 on the fixture suite fell from 0.9643 to 0.6429. Hybrid + rerank stayed at 1.0, which
+  is why every retrieval mode is gated, not only the headline one. The branch was deleted
+  afterwards; the run stays in the Actions history.
 
 ## Design decisions
 
