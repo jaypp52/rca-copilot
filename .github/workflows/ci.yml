@@ -45,7 +45,7 @@ jobs:
           --health-interval 5s --health-timeout 3s --health-retries 20
     env:
       DATABASE_URL: postgresql://rca:rca@localhost:5432/rca
-      DATA_DIR: ${{ runner.temp }}/rca-data
+      DATA_DIR: ${{ github.workspace }}/.rca-data  # runner.* is not allowed in job-level env
       HF_HOME: ${{ github.workspace }}/.hf-cache
       # The key is only exposed on pushes to main (never to forks / PRs).
       ANTHROPIC_API_KEY: ${{ (github.event_name == 'push' && github.ref == 'refs/heads/main') && secrets.ANTHROPIC_API_KEY || '' }}
